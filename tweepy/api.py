@@ -35,14 +35,14 @@ class API(object):
     public_timeline = bind_api(
         path = '/statuses/public_timeline.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = []
+        allowed_param = ['include_entities']
     )
 
     """ statuses/home_timeline """
     home_timeline = bind_api(
         path = '/statuses/home_timeline.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -50,7 +50,7 @@ class API(object):
     friends_timeline = bind_api(
         path = '/statuses/friends_timeline.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -59,14 +59,14 @@ class API(object):
         path = '/statuses/user_timeline.json',
         payload_type = 'status', payload_list = True,
         allowed_param = ['id', 'user_id', 'screen_name', 'since_id',
-                          'max_id', 'count', 'page', 'include_rts']
+                          'max_id', 'count', 'page', 'include_rts', 'include_entities']
     )
 
     """ statuses/mentions """
     mentions = bind_api(
         path = '/statuses/mentions.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -74,7 +74,7 @@ class API(object):
     retweeted_by = bind_api(
         path = '/statuses/{id}/retweeted_by.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['id', 'count', 'page'],
+        allowed_param = ['id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -90,7 +90,7 @@ class API(object):
     retweeted_by_ids = bind_api(
         path = '/statuses/{id}/retweeted_by/ids.json',
         payload_type = 'ids',
-        allowed_param = ['id', 'count', 'page'],
+        allowed_param = ['id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -98,7 +98,7 @@ class API(object):
     retweeted_by_me = bind_api(
         path = '/statuses/retweeted_by_me.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -106,7 +106,7 @@ class API(object):
     retweeted_to_me = bind_api(
         path = '/statuses/retweeted_to_me.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -114,7 +114,7 @@ class API(object):
     retweets_of_me = bind_api(
         path = '/statuses/retweets_of_me.json',
         payload_type = 'status', payload_list = True,
-        allowed_param = ['since_id', 'max_id', 'count', 'page'],
+        allowed_param = ['since_id', 'max_id', 'count', 'page', 'include_entities'],
         require_auth = True
     )
 
@@ -122,7 +122,7 @@ class API(object):
     get_status = bind_api(
         path = '/statuses/show.json',
         payload_type = 'status',
-        allowed_param = ['id']
+        allowed_param = ['id', 'include_entities']
     )
 
     """ statuses/update """
@@ -130,7 +130,7 @@ class API(object):
         path = '/statuses/update.json',
         method = 'POST',
         payload_type = 'status',
-        allowed_param = ['status', 'in_reply_to_status_id', 'lat', 'long', 'source', 'place_id'],
+        allowed_param = ['status', 'in_reply_to_status_id', 'lat', 'long', 'source', 'place_id', 'include_entities'],
         require_auth = True
     )
 
