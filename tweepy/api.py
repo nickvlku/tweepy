@@ -59,7 +59,8 @@ class API(object):
         path = '/statuses/user_timeline.json',
         payload_type = 'status', payload_list = True,
         allowed_param = ['id', 'user_id', 'screen_name', 'since_id',
-                          'max_id', 'count', 'page', 'include_rts', 'include_entities']
+                          'max_id', 'count', 'page', 'include_rts', 'include_entities'],
+        require_auth = True
     )
 
     """ statuses/mentions """
