@@ -7,7 +7,7 @@ from socket import timeout
 from threading import Thread
 from time import sleep
 import urllib
-
+import zlib
 from tweepy.models import Status
 from tweepy.api import API
 from tweepy.error import TweepError
@@ -17,6 +17,49 @@ json = import_simplejson()
 
 STREAM_VERSION = 1
 
+class StreamTestListener(object):
+
+    def __init__(self, api=None):
+        self.api = api or API()
+
+    def on_data(self, data):
+        """Called when raw data is received from connection.
+
+        Override this method if you wish to manually handle
+        the stream data. Return False to stop stream and close connection.
+        """
+
+        if 'in_reply_to_status_id' in data:
+            status = Status.parse(self.api, json.loads(data))
+            if self.on_status(status) is False:
+                return False
+        elif 'delete' in data:
+            delete = json.loads(data)['delete']['status']
+            if self.on_delete(delete['id'], delete['user_id']) is False:
+                return False
+        elif 'limit' in data:
+            if self.on_limit(json.loads(data)['limit']['track']) is False:
+                return False
+
+    def on_status(self, status):
+        """Called when a new status arrives"""
+        print "%s: %s" % (status.user.name, status.text)
+
+    def on_delete(self, status_id, user_id):
+        """Called when a delete notice arrives for a status"""
+        return
+
+    def on_limit(self, track):
+        """Called when a limitation notice arrvies"""
+        return
+
+    def on_error(self, status_code):
+        """Called when a non-200 status code is returned"""
+        return False
+
+    def on_timeout(self):
+        """Called when stream connection times out"""
+        return
 
 class StreamListener(object):
 
@@ -76,6 +119,7 @@ class Stream(object):
         self.retry_time = options.get("retry_time", 10.0)
         self.snooze_time = options.get("snooze_time",  5.0)
         self.buffer_size = options.get("buffer_size",  1500)
+        self.gzipped = options.get('gzip', False)
         if options.get("secure", True):
             self.scheme = "https"
         else:
@@ -103,9 +147,12 @@ class Stream(object):
                     conn = httplib.HTTPConnection(self.host)
                 else:
                     conn = httplib.HTTPSConnection(self.host)
+                if self.gzipped:
+                    self.headers['Accept-Encoding'] = 'deflate,gzip'
                 self.auth.apply_auth(url, 'POST', self.headers, self.parameters)
                 conn.connect()
                 conn.sock.settimeout(self.timeout)
+                conn.set_debuglevel(10)
                 conn.request('POST', self.url, self.body, headers=self.headers)
                 resp = conn.getresponse()
                 if resp.status != 200:
@@ -114,6 +161,8 @@ class Stream(object):
                     error_counter += 1
                     sleep(self.retry_time)
                 else:
+                    for header in resp.getheaders():
+                        print header
                     error_counter = 0
                     self._read_loop(resp)
             except timeout:
@@ -147,6 +196,13 @@ class Stream(object):
                 if not c or c == '\n':
                     break
                 data += c
+            print "raw data: %s" % (data)
+            if self.gzipped:
+                try:
+                    data = zlib.decompress(data)
+                except:
+                    pass
+                
             data = data.strip()
 
             # read data and pass into listener
